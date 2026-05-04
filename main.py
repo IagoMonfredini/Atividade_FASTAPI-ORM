@@ -125,3 +125,36 @@ def deletar_produto(id: int, db: Session = Depends(get_db)):
         db.commit()
     return RedirectResponse(url="/produtos", status_code=303)
 
+# ATUALIZAR PRODUTO
+@app.get("/produtos/{id}/editar")
+def editar_produto(id: int, request: Request, db: Session = Depends(get_db)):
+    produto = db.query(Produto).filter_by(id=id).first()
+    categorias = db.query(Categoria).all()  # Necessário para o select de categorias
+    return templates.TemplateResponse(
+        request,
+        "atualizar_produto.html",
+        {
+            "request": request,
+            "produto": produto,
+            "categorias": categorias
+        }
+    )
+
+# ATUALIZAR PRODUTO
+@app.post("/produtos/{id}/editar")
+def atualizar_produto(
+    id: int,
+    nome: str = Form(...),
+    preco: float = Form(...),
+    estoque: int = Form(...),
+    categoria_id: int = Form(...),
+    db: Session = Depends(get_db)
+):
+    produto_existente = db.query(Produto).filter_by(id=id).first()
+    if produto_existente:
+        produto_existente.nome = nome
+        produto_existente.preco = preco
+        produto_existente.estoque = estoque
+        produto_existente.categoria_id = categoria_id
+        db.commit()
+    return RedirectResponse(url="/produtos", status_code=303)
