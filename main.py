@@ -124,3 +124,4 @@ def deletar_produto(id: int, db: Session = Depends(get_db)):
         db.delete(produto)
         db.commit()
     return RedirectResponse(url="/produtos", status_code=303)
+

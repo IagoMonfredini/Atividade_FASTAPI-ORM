@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>TechControl - Produtos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(16, 185, 129, 0.05); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <nav class="bg-emerald-950 p-4 text-emerald-100 shadow-md">
+        <div class="container mx-auto px-4 flex items-center justify-between text-sm">
+            <div class="flex gap-2">
+                <a href="/" class="hover:text-white transition">Dashboard</a>
+                <span class="text-emerald-700">/</span>
+                <span class="font-medium text-white">Produtos</span>
+            </div>
+            <span class="font-mono text-xs text-emerald-500">Módulo de Inventário ATIVO</span>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 md:p-8">
+        <h2 class="text-3xl font-extrabold text-emerald-950 tracking-tighter mb-10">Central de <span class="text-emerald-600">Produtos</span></h2>
+
+        <div class="bg-white p-8 rounded-2xl shadow-xl shadow-gray-500/5 border border-gray-100 mb-12 relative overflow-hidden">
+             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-700"></div>
+            <h3 class="text-lg font-semibold text-emerald-900 mb-6 tracking-tight">Provisionar Novo Item no Estoque</h3>
+            <form action="/produtos" method="POST" class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div class="md:col-span-3">
+                    <input type="text" name="nome" placeholder="Nome do Produto" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-1 focus:ring-emerald-400 transition bg-gray-50 text-sm">
+                </div>
+                <div class="md:col-span-2">
+                    <input type="number" step="0.01" name="preco" placeholder="Preço (R$)" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-1 focus:ring-emerald-400 transition bg-gray-50 text-sm font-mono">
+                </div>
+                <div class="md:col-span-2">
+                    <input type="number" name="estoque" placeholder="Unidades" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-1 focus:ring-emerald-400 transition bg-gray-50 text-sm font-mono">
+                </div>
+                <div class="md:col-span-3">
+                    <select name="categoria_id" required class="w-full border border-gray-200 p-3 rounded-xl focus:ring-1 focus:ring-emerald-400 transition bg-gray-50 text-sm appearance-none text-gray-600">
+                        <option value="">-- Selecione Categoria --</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}">{{ cat.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="w-full h-full bg-emerald-950 text-emerald-100 font-bold rounded-xl hover:bg-black transition duration-150 text-sm">
+                        Injetar Item
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for produto in produtos %}
+            <div class="product-card bg-white p-6 rounded-2xl shadow-lg shadow-gray-500/5 border border-gray-100 relative flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="font-mono text-xs text-gray-400">UID: {{ produto.id }}</span>
+                        <form action="/produtos/{{ produto.id }}/deletar" method="POST" onsubmit="return confirm('Deseja purgar o produto {{ produto.nome }} do sistema?')">
+                            <button type="submit" class="text-gray-300 hover:text-red-500 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </form>
+                    </div>
+                    <h3 class="text-xl font-bold text-emerald-950 tracking-tight leading-snug mb-1">{{ produto.nome }}</h3>
+                    
+                    <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full font-medium">
+                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h10"></path></svg>
+                        Cat ID: {{ produto.categoria_id }}
+                    </span>
+                </div>
+
+                <div class="mt-8 pt-4 border-t border-gray-100 flex justify-between items-end">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-400 uppercase tracking-wider">Preço Unitário</span>
+                        <span class="text-2xl font-extrabold text-emerald-700 font-mono"><span class="text-sm font-normal text-emerald-500">R$</span>{{ "%.2f"|format(produto.preco) }}</span>
+                    </div>
+                    {% if produto.estoque > 10 %}
+                        <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-md text-xs font-bold font-mono">Qtd: {{ produto.estoque }}</span>
+                    {% elif produto.estoque > 0 %}
+                        <span class="bg-yellow-50 text-yellow-700 px-3 py-1 rounded-md text-xs font-bold font-mono">Qtd: {{ produto.estoque }}</span>
+                    {% else %}
+                        <span class="bg-red-50 text-red-700 px-3 py-1 rounded-md text-xs font-bold font-mono">ESGOTADO</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if not produtos %}
+        <div class="bg-white border border-gray-100 rounded-2xl text-center py-24 shadow-xl shadow-gray-500/5 mt-10">
+            <svg class="w-16 h-16 mx-auto text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            <p class="text-xl font-semibold text-emerald-950 mt-6 tracking-tight">O inventário está vazio.</p>
+            <p class="text-gray-500 mt-2 font-light">Utilize o formulário acima para provisionar os primeiros produtos.</p>
+        </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>
