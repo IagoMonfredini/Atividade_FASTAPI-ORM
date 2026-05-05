@@ -129,7 +129,7 @@ def deletar_produto(id: int, db: Session = Depends(get_db)):
 @app.get("/produtos/{id}/editar")
 def editar_produto(id: int, request: Request, db: Session = Depends(get_db)):
     produto = db.query(Produto).filter_by(id=id).first()
-    categorias = db.query(Categoria).all()  # Necessário para o select de categorias
+    categorias = db.query(Categoria).all()  
     return templates.TemplateResponse(
         request,
         "atualizar_produto.html",
